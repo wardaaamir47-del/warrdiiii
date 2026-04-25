@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Energy Meter</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+<h2>⚡ Smart Energy Dashboard</h2>
+
+<p>Daily Usage: <span id="usage"></span> kWh</p>
+<p>Predicted Bill: ₹<span id="bill"></span></p>
+
+<canvas id="chart" width="400" height="200"></canvas>
+
+<button onclick="loadData()">Refresh</button>
+
+<script src="script.js"></script>
+
+</body>
+</html>
+
+
+const API = "https://your-backend-url.onrender.com";
+
+async function loadData() {
+  let res = await fetch(API + "/dashboard");
+  let data = await res.json();
+
+  document.getElementById("usage").innerText = data.daily_usage.toFixed(2);
+  document.getElementById("bill").innerText = data.predicted_bill.toFixed(2);
+
+  loadChart();
+}
+
+async function loadChart() {
+  let res = await fetch(API + "/history");
+  let history = await res.json();
+
+  let labels = history.map(x => x[0]);
+  let values = history.map(x => x[1]);
+
+  new Chart(document.getElementById("chart"), {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Energy Usage',
+        data: values
+      }]
+    }
+  });
+}
+
+loadData();
